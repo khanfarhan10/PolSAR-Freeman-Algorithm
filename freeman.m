@@ -1,10 +1,14 @@
-%%freeman·Ö½â
+%%freemanåˆ†è§£
 clc;
 clear all;
 close all;
 row =900;     col =1024;     data = zeros(row,col,9);
 
-%%¶ÁÈëÏà¸É¾ØÕó[T]
+clear; clc;    cols=1101;    rows=1251;  ep = 0.00001;
+% init row = 5500 end row= 6600 2050,3300
+addpath('H:\PolSAR_ALL\PolsarProData\Product Rosa20_3503D_16097_003_161110_L090_CX_01\C3_change_LEE\C3_Matrices_binfiles\')
+
+%%è¯»å…¥ç›¸å¹²çŸ©é˜µ[T]
 fIn = fopen( 'T3\T11.bin','r');
 data(:,:,1) = fread(fIn,[col,row],'float').';     fclose(fIn);
 fIn = fopen( 'T3\T22.bin','r');
@@ -25,7 +29,7 @@ fIn = fopen( 'T3\T23_imag.bin','r');
 data(:,:,9) = fread(fIn,[col,row],'float').';   fclose(fIn); 
 clear fIn;
 
-%%µÃµ½Ïà¸É¾ØÕó[T]
+%%å¾—åˆ°ç›¸å¹²çŸ©é˜µ[T]
 t11=data(:,:,1);
 t22=data(:,:,2);
 t33=data(:,:,3);
@@ -33,20 +37,20 @@ t12=data(:,:,4)+1i*data(:,:,7);
 t13=data(:,:,5)+1i*data(:,:,8);
 t23=data(:,:,6)+1i*data(:,:,9);   
 
-A=(1/sqrt(2))*[1 0 1;1 0 -1;0 sqrt(2) 0];    %Ïà¸É¾ØÕó[T]ºÍĞ­·½²î¾ØÕóµÄ×ª»¯ÏµÊı
-for ii=1:900
-    for jj=1:1024
+A=(1/sqrt(2))*[1 0 1;1 0 -1;0 sqrt(2) 0];    %ç›¸å¹²çŸ©é˜µ[T]å’Œåæ–¹å·®çŸ©é˜µçš„è½¬åŒ–ç³»æ•°
+for ii=1:row
+    for jj=1:col
         t=[t11(ii,jj) t12(ii,jj) t13(ii,jj);t12(ii,jj)' t22(ii,jj) t23(ii,jj);t13(ii,jj)' t23(ii,jj)' t33(ii,jj)];
-        c=inv(A)*t*inv(A');      %%µÃµ½Ğ­·½²î¾ØÕó
+        c=inv(A)*t*inv(A');      %%å¾—åˆ°åæ–¹å·®çŸ©é˜µ
         fv=(3/2)*c(2,2);
-        pv=(8/3)*fv;     %Çópv
+        pv=(8/3)*fv;     %æ±‚pv
         if real(c(1,3))>=0
             alph=-1;
             beta=1+(c(1,1)-c(3,3))/(c(1,3)+c(3,3)-2*c(2,2));
 % be=(c(1,1)+c(1,3)-2*c(2,2))/(c(1,3)+c(3,3)-2*c(2,2));
 
 
-%%ÇópsºÍpd
+%%æ±‚pså’Œpd
            fs = (c(1,3) + c(3,3) - 2*c(2,2))/(1 + beta);
             ps=fs*(1+(abs(beta))^2);
             fd=c(3,3)-fs-fv;
@@ -59,7 +63,7 @@ for ii=1:900
             pd=fd*(1+(abs(alph))^2);
             ps=2*fs;
         end
-%%µÃµ½Pv¡¢Ps¡¢PdÈı¸ö·ÖÁ¿
+%%å¾—åˆ°Pvã€Psã€Pdä¸‰ä¸ªåˆ†é‡
 
 
         Pv(ii,jj)=pv;
@@ -73,4 +77,4 @@ freem(:,:,3)=Ps;
 figure;imshow(Pv);title('Pv');
 figure;imshow(Pd);title('Pd');
 figure;imshow(Ps);title('Ps');
-figure;imshow(freem);title('freeman-decomposition');  %»ìÉ«ºóµÄRGBÍ¼Ïñ
+figure;imshow(freem);title('freeman-decomposition');  %æ··è‰²åçš„RGBå›¾åƒ
